@@ -1,0 +1,121 @@
+#!/usr/bin/env python
+import sys
+import re
+from optparse import OptionParser
+
+from pylal import Fr
+
+import numpy
+from scipy.signal import resample
+
+chan_names = ["MAG-PART_SHIELD_CHAN1", "MAG-PART_SHIELD_CHAN2", "MAG-FULL_SHIELD_CHAN1", "MAG-FULL_SHIELD_CHAN2"]
+
+def file_number(fname):
+    return int(re.search("(\d+)", fname).group(1))
+
+def frame_data(data, rate, start, chan_name, det):
+#for arg in args:
+    #dat = numpy.loadtxt(arg, unpack=True)
+    #fr_data = []
+    return {
+	    "name": "%s:%s" % (det, chan_name),
+	    "data": data,
+	    "start": start,
+	    "dx": 1.0/rate }
+
+def write_to_frame(fr_data, rate, start, det, verbose=False):
+    dur = len(fr_data[0]["data"])/float(rate)
+    print "Writing %s-%s_TEST_MAG-%d-%d.gwf" % (det[0], det, start, dur)
+    Fr.frputvect("%s-%s_TEST_MAG-%d-%d.gwf" % (det[0], det, start, dur), fr_data, verbose = verbose)
+
+optp = OptionParser()
+optp.add_option("-d", "--detector", help="Detetor name in the 'LIGO' format. E.g.: -d K1")
+optp.add_option("-i", "--input-rate", type=int, help="Sample rate of the input data. Required.")
+optp.add_option("-o", "--output-rate", type=int, help="Sample rate of the output frames. If no option is given, no resampling will be done.")
+optp.add_option("-c", "--channel-position", action="append", help="Specify channel name and its column position in the input files. E.g. MAG-FULL_SHIELD_CHAN1=1")
+optp.add_option("-s", "--output-time-stride", type=int, help="Stride of the output time series frames.")
+optp.add_option("-S", "--gps-start-time", type=int, help="GPS start time of the first frame")
+opts, args = optp.parse_args()
+
+det_dict = { "berkeley": "B1", "krakow": "K1" }
+det = opts.detector
+
+if det is None:
+	print >>sys.stderr, "Couldn't assign detector abbreviation. Bailing..."
+	exit(-1)
+
+if opts.input_rate is None:
+    sys.exit("Input rate of data must be specified.")
+
+#in_rate = 1000
+in_rate = opts.input_rate
+#rate = 1024
+rate = opts.output_rate or in_rate
+
+chan_names, _ = zip(*sorted([chan.split("=") for chan in opts.channel_position], key=lambda (c, p): int(p)))
+print "Channels to parse: %s" % ", ".join(chan_names)
+
+#
+# Collect data
+#
+args = sorted(args, key=file_number)
+dat = numpy.empty((4,0))
+for arg in args:
+    dat = numpy.hstack((dat, numpy.loadtxt(arg, unpack=True)))
+
+upsample_factor = rate/float(in_rate)
+
+# NOTE: We collect all data to work around having to feather the data after 
+# resampling each individual stide
+resamp = {}
+for chan_name, chan_dat in zip(chan_names, dat):
+    if upsample_factor == 1:
+        resamp[chan_name] = chan_dat
+        continue
+    #window = lal.CreateTukeyREAL8Window(2*len(dat), 0.1)
+    #resamp = resample(dat, int(upsample_factor*len(dat)), window=window.data.data[len(dat):])
+    resamp[chan_name] = resample(chan_dat, int(upsample_factor*len(chan_dat)))
+
+#
+# Restride the data and hand to frames
+#
+t_stride = opts.output_time_stride
+stride = t_stride*rate
+start = opts.gps_start_time
+
+idx = 0
+while idx < len(resamp[chan_names[0]]):
+    fr_data = []
+    for chan_name, chan_data in resamp.iteritems():
+        fr_data.append(frame_data(chan_data[idx:idx+stride], rate, start, chan_name, det))
+    write_to_frame(fr_data, rate, start, det)
+    idx += stride
+    start += t_stride
+
+exit()
+#
+# Plot the result
+#
+resamp = numpy.loadtxt("resample_open_nowind.dat")
+
+t_off = 10 # s
+t_end = t_off + 1 # s
+
+dat = dat[t_off*1000:t_end*1000]
+resamp = resamp[t_off*1024:t_end*1024]
+
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import pyplot
+t = numpy.arange(0, len(dat), 1)
+pyplot.subplot(211)
+pyplot.plot(t/1000.0, dat, 'k-')
+pyplot.grid()
+pyplot.subplot(212)
+pyplot.plot(t/1000.0, dat, 'k-', label="input")
+t = numpy.arange(0, len(resamp), 1)
+pyplot.plot(t/1024.0, resamp, 'r-', label="resampled")
+pyplot.grid()
+pyplot.legend()
+pyplot.suptitle("Magnetometer signal")
+pyplot.savefig("check.png")

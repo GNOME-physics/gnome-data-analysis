@@ -1,0 +1,61 @@
+#!/usr/bin/env python
+import sys
+from collections import defaultdict
+
+import matplotlib
+matplotlib.use("Agg")
+from matplotlib import pyplot
+
+import numpy
+
+from pylal import frutils
+from glue.lal import Cache
+
+import lal
+
+def frame_data_to_hoft(fname, channel, start=None, stop=None, verbose=True):
+    """
+    Function to read in data in the frame format and convert it to 
+    a REAL8TimeSeries. fname is the path to a LIGO cache file.
+    """
+    with open(fname) as cfile:
+        cachef = Cache.fromfile(cfile)
+    for i in range(len(cachef))[::-1]:
+        # FIXME: HACKHACKHACK
+        if cachef[i].observatory != channel[0]:
+            del cachef[i]
+    if verbose:
+        print cachef.to_segmentlistdict()
+    fcache = frutils.FrameCache(cachef)
+    # FIXME: Horrible, horrible hack -- will only work if all requested channels
+    # span the cache *exactly*
+    if start is None:
+        start = cachef.to_segmentlistdict()[channel[0]][0][0]
+    if stop is None:
+        stop = cachef.to_segmentlistdict()[channel[0]][-1][-1]
+    
+    ht = fcache.fetch(channel, start, stop)
+        
+    tmp = lal.CreateREAL8TimeSeries("h(t)", 
+            lal.LIGOTimeGPS(float(ht.metadata.segments[0][0])),
+            0., ht.metadata.dt, lal.lalDimensionlessUnit, len(ht))
+    tmp.data.data[:] = ht
+    return tmp
+
+pyplot.figure()
+i = 1
+for d in ["K1"]:
+    for i, chan in enumerate(["MAG-FULL_SHIELD_CHAN1", "MAG-FULL_SHIELD_CHAN2", "MAG-PART_SHIELD_CHAN1", "MAG-PART_SHIELD_CHAN2"]):
+        series = frame_data_to_hoft(sys.argv[1], "%s:%s" % (d, chan))
+        pyplot.subplot(4, 1, i)
+        pyplot.grid()
+        t = numpy.arange(float(series.epoch), float(series.epoch)+len(series.data.data)*series.deltaT, series.deltaT)
+        pyplot.plot(t, series.data.data, '-', label=chan)
+        #pyplot.xlim([1e9+3000, 1e9+3500])
+        #pyplot.xlim([1e9, 1e9+6000])
+        #pyplot.xlim([1e9+500, 1e9+1000])
+        pyplot.legend(loc="lower left", prop={"size": 10})
+
+pyplot.suptitle(d)
+output_name = sys.argv[1].replace(".cache", ".png")
+pyplot.savefig(output_name)

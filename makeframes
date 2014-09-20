@@ -1,38 +1,41 @@
 #!/usr/bin/env python
 import sys
+import os
+import glob
 import re
 from optparse import OptionParser
-
-from pylal import Fr
 
 import numpy
 from scipy.signal import resample
 
-chan_names = ["MAG-PART_SHIELD_CHAN1", "MAG-PART_SHIELD_CHAN2", "MAG-FULL_SHIELD_CHAN1", "MAG-FULL_SHIELD_CHAN2"]
+from glue.lal import Cache, CacheEntry
+from pylal import Fr
+
+#chan_names = ["MAG-PART_SHIELD_CHAN1", "MAG-PART_SHIELD_CHAN2", "MAG-FULL_SHIELD_CHAN1", "MAG-FULL_SHIELD_CHAN2"]
 
 def file_number(fname):
     return int(re.search("(\d+)", fname).group(1))
 
 def frame_data(data, rate, start, chan_name, det):
-#for arg in args:
-    #dat = numpy.loadtxt(arg, unpack=True)
-    #fr_data = []
     return {
 	    "name": "%s:%s" % (det, chan_name),
 	    "data": data,
 	    "start": start,
 	    "dx": 1.0/rate }
 
-def write_to_frame(fr_data, rate, start, det, verbose=False):
+def write_to_frame(fr_data, rate, start, det, dir_stem="./", verbose=False):
     dur = len(fr_data[0]["data"])/float(rate)
-    print "Writing %s-%s_TEST_MAG-%d-%d.gwf" % (det[0], det, start, dur)
-    Fr.frputvect("%s-%s_TEST_MAG-%d-%d.gwf" % (det[0], det, start, dur), fr_data, verbose = verbose)
+    outpath = os.path.join(dir_stem, "%s-%s_TEST_MAG-%d-%d.gwf" % (det[0], det, start, dur))
+    print "Writing %s" % outpath
+    Fr.frputvect(outpath, fr_data, verbose = verbose)
 
 optp = OptionParser()
 optp.add_option("-d", "--detector", help="Detetor name in the 'LIGO' format. E.g.: -d K1")
 optp.add_option("-i", "--input-rate", type=int, help="Sample rate of the input data. Required.")
+optp.add_option("-D", "--input-directory", help="Process all files in this directory. Can be provided additionally or in place of command line arguments.")
 optp.add_option("-o", "--output-rate", type=int, help="Sample rate of the output frames. If no option is given, no resampling will be done.")
 optp.add_option("-c", "--channel-position", action="append", help="Specify channel name and its column position in the input files. E.g. MAG-FULL_SHIELD_CHAN1=1")
+optp.add_option("-O", "--output-directory", default="./", help="Directory to place output frames. Default is pwd")
 optp.add_option("-s", "--output-time-stride", type=int, help="Stride of the output time series frames.")
 optp.add_option("-S", "--gps-start-time", type=int, help="GPS start time of the first frame")
 opts, args = optp.parse_args()
@@ -58,6 +61,8 @@ print "Channels to parse: %s" % ", ".join(chan_names)
 #
 # Collect data
 #
+if opts.input_directory is not None:
+    args += glob.glob(opts.input_directory + "/*")
 args = sorted(args, key=file_number)
 dat = numpy.empty((4,0))
 for arg in args:
@@ -88,7 +93,7 @@ while idx < len(resamp[chan_names[0]]):
     fr_data = []
     for chan_name, chan_data in resamp.iteritems():
         fr_data.append(frame_data(chan_data[idx:idx+stride], rate, start, chan_name, det))
-    write_to_frame(fr_data, rate, start, det)
+    write_to_frame(fr_data, rate, start, det, opts.output_directory)
     idx += stride
     start += t_stride
 

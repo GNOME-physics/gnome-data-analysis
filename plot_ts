@@ -38,7 +38,7 @@ def frame_data_to_hoft(fname, channel, start=None, stop=None, verbose=True):
         
     tmp = lal.CreateREAL8TimeSeries("h(t)", 
             lal.LIGOTimeGPS(float(ht.metadata.segments[0][0])),
-            0., ht.metadata.dt, lal.lalDimensionlessUnit, len(ht))
+            0., ht.metadata.dt, lal.DimensionlessUnit, len(ht))
     tmp.data.data[:] = ht
     return tmp
 

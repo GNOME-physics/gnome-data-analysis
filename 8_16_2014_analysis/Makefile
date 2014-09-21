@@ -43,8 +43,8 @@ out_rate=1024
 output_stride=120
 # Arbitary GPS timestamp for data to start at
 gps_start=1000000000
-gps_end_open=1000009600
-gps_end_shorten=1000005880
+gps_end_open=1000003600
+gps_end_shorten=1000003600
 
 #
 # A note on channel names: Both the `open' and `shorten' data sets have four 
@@ -56,7 +56,7 @@ gps_end_shorten=1000005880
 # inappropriate.
 #
 
-PSDS=K1-K1_MAG_v1p25-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1_MAG_v2p5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN1_REF_PSD.xml.gz
+PSDS=K1-K1_MAG_v1p25-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v2p5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN1_REF_PSD.xml.gz
 
 #
 # Preliminaries -- unpack the data if provided in tarball form
@@ -155,95 +155,95 @@ all_ts_plots: shorten_v1p25_frames_resampled.png shorten_v2p5_frames_resampled.p
 #
 # Analysis rules
 #
-MAG_PART_SHIELD_CHAN1_open: gnome_test_open.ini open_frames_resampled.cache
+MAG_%_PART_SHIELD_CHAN1_open: gnome_test_open_%.ini open_%_frames_resampled.cache
 	gstlal_excesspower  \
         --data-source frames \
-        --frame-cache open_frames_resampled.cache \
+        --frame-cache open_$*_frames_resampled.cache \
+        --channel-name K1=MAG-PART_SHIELD_CHAN1 \
+        --sample-rate 1024 \
+        --initialization-file gnome_test_open_$*.ini \
+        --gps-start-time ${gps_start} \
+        --gps-end-time ${gps_end_open} \
+        --verbose
+
+MAG_%_PART_SHIELD_CHAN2_open: gnome_test_open_%.ini open_%_frames_resampled.cache
+	gstlal_excesspower  \
+        --data-source frames \
+        --frame-cache open_$*_frames_resampled.cache \
+        --channel-name K1=MAG-PART_SHIELD_CHAN2 \
+        --sample-rate 1024 \
+        --initialization-file gnome_test_open_$*.ini \
+        --gps-start-time ${gps_start} \
+        --gps-end-time ${gps_end_open} \
+        --verbose
+
+MAG_%_FULL_SHIELD_CHAN1_open: gnome_test_open_%.ini open_%_frames_resampled.cache
+	gstlal_excesspower  \
+        --data-source frames \
+        --frame-cache open_$*_frames_resampled.cache \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN1 \
+        --sample-rate 1024 \
+        --initialization-file gnome_test_open_$*.ini \
+        --gps-start-time ${gps_start} \
+        --gps-end-time ${gps_end_open} \
+        --verbose
+
+MAG_%_FULL_SHIELD_CHAN2_open: gnome_test_open_%.ini open_%_frames_resampled.cache
+	gstlal_excesspower  \
+        --data-source frames \
+        --frame-cache open_$*_frames_resampled.cache \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN2 \
+        --sample-rate 1024 \
+        --initialization-file gnome_test_open_$*.ini \
+        --gps-start-time ${gps_start} \
+        --gps-end-time ${gps_end_open} \
+        --verbose
+
+MAG_%_PART_SHIELD_CHAN1_shorten: gnome_test_shorten_%.ini shorten_%_frames_resampled.cache
+	gstlal_excesspower  \
+        --data-source frames \
+        --frame-cache shorten_$*_frames_resampled.cache \
         --channel-name K1=MAG_PART_SHIELD_CHAN1 \
         --sample-rate 1024 \
-        --initialization-file gnome_test_open.ini \
+        --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_open} \
+        --gps-end-time ${gps_end_shorten} \
         --verbose
 
-MAG_PART_SHIELD_CHAN2_open: gnome_test_open.ini open_frames_resampled.cache
+MAG_%_PART_SHIELD_CHAN2_shorten: gnome_test_shorten_%.ini shorten_%_frames_resampled.cache
 	gstlal_excesspower  \
         --data-source frames \
-        --frame-cache open_frames_resampled.cache \
+        --frame-cache shorten_$*_frames_resampled.cache \
         --channel-name K1=MAG_PART_SHIELD_CHAN2 \
         --sample-rate 1024 \
-        --initialization-file gnome_test_open.ini \
+        --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_open} \
+        --gps-end-time ${gps_end_shorten} \
         --verbose
 
-MAG_FULL_SHIELD_CHAN1_open: gnome_test_open.ini open_frames_resampled.cache
+MAG_%_FULL_SHIELD_CHAN1_shorten: gnome_test_shorten_%.ini shorten_%_frames_resampled.cache
 	gstlal_excesspower  \
         --data-source frames \
-        --frame-cache open_frames_resampled.cache \
+        --frame-cache shorten_$*_frames_resampled.cache \
         --channel-name K1=MAG_FULL_SHIELD_CHAN1 \
         --sample-rate 1024 \
-        --initialization-file gnome_test_open.ini \
+        --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_open} \
+        --gps-end-time ${gps_end_shorten} \
         --verbose
 
-MAG_FULL_SHIELD_CHAN2_open: gnome_test_open.ini open_frames_resampled.cache
+MAG_%_FULL_SHIELD_CHAN2_shorten: gnome_test_shorten_%.ini shorten_%_frames_resampled.cache
 	gstlal_excesspower  \
         --data-source frames \
-        --frame-cache open_frames_resampled.cache \
+        --frame-cache shorten_$*_frames_resampled.cache \
         --channel-name K1=MAG_FULL_SHIELD_CHAN2 \
         --sample-rate 1024 \
-        --initialization-file gnome_test_open.ini \
-        --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_open} \
-        --verbose
-
-MAG_PART_SHIELD_CHAN1_shorten: gnome_test_shorten.ini shorten_frames_resampled.cache
-	gstlal_excesspower  \
-        --data-source frames \
-        --frame-cache shorten_frames_resampled.cache \
-        --channel-name K1=MAG_PART_SHIELD_CHAN1 \
-        --sample-rate 1024 \
-        --initialization-file gnome_test_shorten.ini \
+        --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
         --gps-end-time ${gps_end_shorten} \
         --verbose
 
-MAG_PART_SHIELD_CHAN2_shorten: gnome_test_shorten.ini shorten_frames_resampled.cache
-	gstlal_excesspower  \
-        --data-source frames \
-        --frame-cache shorten_frames_resampled.cache \
-        --channel-name K1=MAG_PART_SHIELD_CHAN2 \
-        --sample-rate 1024 \
-        --initialization-file gnome_test_shorten.ini \
-        --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_shorten} \
-        --verbose
-
-MAG_FULL_SHIELD_CHAN1_shorten: gnome_test_shorten.ini shorten_frames_resampled.cache
-	gstlal_excesspower  \
-        --data-source frames \
-        --frame-cache shorten_frames_resampled.cache \
-        --channel-name K1=MAG_FULL_SHIELD_CHAN1 \
-        --sample-rate 1024 \
-        --initialization-file gnome_test_shorten.ini \
-        --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_shorten} \
-        --verbose
-
-MAG_FULL_SHIELD_CHAN2_shorten: gnome_test_shorten.ini shorten_frames_resampled.cache
-	gstlal_excesspower  \
-        --data-source frames \
-        --frame-cache shorten_frames_resampled.cache \
-        --channel-name K1=MAG_FULL_SHIELD_CHAN2 \
-        --sample-rate 1024 \
-        --initialization-file gnome_test_shorten.ini \
-        --gps-start-time ${gps_start} \
-        --gps-end-time ${gps_end_shorten} \
-        --verbose
-
-analysis_open: MAG_PART_SHIELD_CHAN1_open MAG_PART_SHIELD_CHAN2_open MAG_FULL_SHIELD_CHAN1_open MAG_FULL_SHIELD_CHAN2_open
+analysis_open: MAG_v1p25_PART_SHIELD_CHAN1_open MAG_v2p5_PART_SHIELD_CHAN1_open MAG_v5_PART_SHIELD_CHAN1_open MAG_v10_PART_SHIELD_CHAN1_open MAG_v1p25_PART_SHIELD_CHAN2_open MAG_v2p5_PART_SHIELD_CHAN2_open MAG_v5_PART_SHIELD_CHAN2_open MAG_v10_PART_SHIELD_CHAN2_open MAG_v1p25_FULL_SHIELD_CHAN1_open MAG_v2p5_FULL_SHIELD_CHAN1_open MAG_v5_FULL_SHIELD_CHAN1_open MAG_v10_FULL_SHIELD_CHAN1_open MAG_v1p25_FULL_SHIELD_CHAN2_open MAG_v2p5_FULL_SHIELD_CHAN2_open MAG_v5_FULL_SHIELD_CHAN2_open MAG_v10_FULL_SHIELD_CHAN2_open
 
 analysis_shorten: MAG_PART_SHIELD_CHAN1_shorten MAG_PART_SHIELD_CHAN2_shorten MAG_FULL_SHIELD_CHAN1_shorten MAG_FULL_SHIELD_CHAN2_shorten
 

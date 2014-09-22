@@ -203,7 +203,7 @@ MAG_%_PART_SHIELD_CHAN1_shorten: gnome_test_shorten_%.ini shorten_%_frames_resam
 	gstlal_excesspower  \
         --data-source frames \
         --frame-cache shorten_$*_frames_resampled.cache \
-        --channel-name K1=MAG_PART_SHIELD_CHAN1 \
+        --channel-name K1=MAG-PART_SHIELD_CHAN1 \
         --sample-rate 1024 \
         --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
@@ -214,7 +214,7 @@ MAG_%_PART_SHIELD_CHAN2_shorten: gnome_test_shorten_%.ini shorten_%_frames_resam
 	gstlal_excesspower  \
         --data-source frames \
         --frame-cache shorten_$*_frames_resampled.cache \
-        --channel-name K1=MAG_PART_SHIELD_CHAN2 \
+        --channel-name K1=MAG-PART_SHIELD_CHAN2 \
         --sample-rate 1024 \
         --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
@@ -225,7 +225,7 @@ MAG_%_FULL_SHIELD_CHAN1_shorten: gnome_test_shorten_%.ini shorten_%_frames_resam
 	gstlal_excesspower  \
         --data-source frames \
         --frame-cache shorten_$*_frames_resampled.cache \
-        --channel-name K1=MAG_FULL_SHIELD_CHAN1 \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN1 \
         --sample-rate 1024 \
         --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \
@@ -236,7 +236,7 @@ MAG_%_FULL_SHIELD_CHAN2_shorten: gnome_test_shorten_%.ini shorten_%_frames_resam
 	gstlal_excesspower  \
         --data-source frames \
         --frame-cache shorten_$*_frames_resampled.cache \
-        --channel-name K1=MAG_FULL_SHIELD_CHAN2 \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN2 \
         --sample-rate 1024 \
         --initialization-file gnome_test_shorten_$*.ini \
         --gps-start-time ${gps_start} \

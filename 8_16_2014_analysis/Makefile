@@ -316,9 +316,9 @@ analysis: analysis_open analysis_shorten
 # Locate and manifest all the trigger files
 #
 open_triggers.cache:
-	find open_triggers/ | lalapps_path2cache > open_triggers.cache
+	find open_triggers/ -name "*.xml.gz" | lalapps_path2cache > open_triggers.cache
 shorten_triggers.cache:
-	find shorten_triggers/ | lalapps_path2cache > shorten_triggers.cache
+	find shorten_triggers/ -name "*.xml.gz" | lalapps_path2cache > shorten_triggers.cache
 
 #
 # Some notes on clustering:
@@ -346,13 +346,13 @@ shorten_triggers.cache:
 #
 open_triggers_clustered.cache:
 	cp -r open_triggers/ open_triggers_clustered/
-	find open_triggers_clustered/ | lalapps_path2cache > .$@
+	find open_triggers_clustered/ -name "*.xml.gz" | lalapps_path2cache > .$@
 	ligolw_bucluster --cluster-algorithm excesspower --program gstlal_excesspower --verbose --input-cache .$@
 	mv .$@ $@
 
 shorten_triggers_clustered.cache:
 	cp -r shorten_triggers/ shorten_triggers_clustered/
-	find shorten_triggers_clustered/ | lalapps_path2cache > .$@
+	find shorten_triggers_clustered/ -name "*.xml.gz" | lalapps_path2cache > .$@
 	ligolw_bucluster --cluster-algorithm excesspower --program gstlal_excesspower --verbose --input-cache .$@
 	mv .$@ $@
 
@@ -405,32 +405,32 @@ shorten_triggers_clustered.cache:
 time_slide_table.xml.gz:
 	ligolw_tisi -i K1=0:5:1 -i K2=0:5:1 -i K3=0:5:1 -i K4=0:0:1 -v time_slide_table.xml.gz 
 
-K-ALL_TRIGGERS_COINC_SHORTEN.xml.gz: time_slide_table.xml.gz shorten_triggers_clsutered.cache
-	ligolw_add  \ 
+K-ALL_TRIGGERS_COINC_SHORTEN.xml.gz: time_slide_table.xml.gz shorten_triggers_clustered.cache
+	ligolw_add  \
 	    --input-cache shorten_triggers_clustered.cache \
         --verbose  \
         -o .tmp_coinc.xml.gz  \
         time_slide_table.xml.gz
-	./munge_inst_name \
+	./munge_inst_name
 	./ligolw_burca_gnome \
         --coincidence-algorithm excesspower \
         -t K1,K2=0 -t K1,K3=0 -t K1,K4=0 -t K2,K3=0 -t K2,K4=0 -t K3,K4=0  \
         --verbose \
-        .tmp_coinc.xml.gz \
+        .tmp_coinc.xml.gz
 	mv .tmp_coinc.xml.gz $@
 
 K-ALL_TRIGGERS_COINC_OPEN.xml.gz: time_slide_table.xml.gz open_triggers_clustered.cache
-	ligolw_add  \ 
+	ligolw_add  \
 	    --input-cache open_triggers_clustered.cache \
         --verbose  \
         -o .tmp_coinc.xml.gz  \
         time_slide_table.xml.gz
-	./munge_inst_name \
+	./munge_inst_name
 	./ligolw_burca_gnome \
         --coincidence-algorithm excesspower \
         -t K1,K2=0 -t K1,K3=0 -t K1,K4=0 -t K2,K3=0 -t K2,K4=0 -t K3,K4=0  \
         --verbose \
-        .tmp_coinc.xml.gz \
+        .tmp_coinc.xml.gz
 	mv .tmp_coinc.xml.gz $@
 
 clean:

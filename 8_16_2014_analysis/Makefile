@@ -27,7 +27,7 @@
 # for a complete listing.
 #
 
-.SECONDARY: open_v1p25_frames_resampled.cache open_v2p5_frames_resampled.cache open_v5_frames_resampled.cache open_v10_frames_resampled.cache shorten_v1p25_frames_resampled.cache shorten_v2p5_frames_resampled.cache shorten_v5_frames_resampled.cache shorten_v10_frames_resampled.cache 
+.SECONDARY: open_v1p25_frames_resampled.cache open_v2p5_frames_resampled.cache open_v5_frames_resampled.cache open_v10_frames_resampled.cache shorten_v1p25_frames_resampled.cache shorten_v2p5_frames_resampled.cache shorten_v5_frames_resampled.cache shorten_v10_frames_resampled.cache K-ALL_TRIGGERS_COINC_OPEN_v1p25.xml.gz K-ALL_TRIGGERS_COINC_OPEN_v2p5.xml.gz K-ALL_TRIGGERS_COINC_OPEN_v5.xml.gz K-ALL_TRIGGERS_COINC_OPEN_v10.xml.gz K-ALL_TRIGGERS_COINC_SHORTEN_v1p25.xml.gz K-ALL_TRIGGERS_COINC_SHORTEN_v2p5.xml.gz K-ALL_TRIGGERS_COINC_SHORTEN_v5.xml.gz K-ALL_TRIGGERS_COINC_SHORTEN_v10.xml.gz
 .PHONY: clean all_ts_plots
 
 # `LIGO style' detector prefix --- arbitrary and probably should be changed 
@@ -315,10 +315,16 @@ analysis: analysis_open analysis_shorten
 #
 # Locate and manifest all the trigger files
 #
-open_triggers.cache:
-	find open_triggers/ -name "*.xml.gz" | lalapps_path2cache > open_triggers.cache
-shorten_triggers.cache:
-	find shorten_triggers/ -name "*.xml.gz" | lalapps_path2cache > shorten_triggers.cache
+open_%_triggers.cache:
+	find open_triggers/$*/ -name "*.xml.gz" | lalapps_path2cache > open_$*_triggers.cache
+shorten_%_triggers.cache:
+	find shorten_triggers/$*/ -name "*.xml.gz" | lalapps_path2cache > shorten_$*_triggers.cache
+
+open_triggers.cache: open_v10_triggers.cache open_v5_triggers.cache open_v2p5_triggers.cache open_v1p25_triggers.cache 
+	cat $^ > $@
+
+shorten_triggers.cache: shorten_v10_triggers.cache shorten_v5_triggers.cache shorten_v2p5_triggers.cache shorten_v1p25_triggers.cache 
+	cat $^ > $@
 
 #
 # Some notes on clustering:
@@ -344,17 +350,25 @@ shorten_triggers.cache:
 # to best localize the signal on the time-frequency plane, as well as probe its
 # full T-F extent.
 #
-open_triggers_clustered.cache:
-	cp -r open_triggers/ open_triggers_clustered/
-	find open_triggers_clustered/ -name "*.xml.gz" | lalapps_path2cache > .$@
+open_%_triggers_clustered.cache:
+	mkdir -p open_triggers_clustered/
+	cp -r open_triggers/$*/ open_triggers_clustered/$*/
+	find open_triggers_clustered/$*/ -name "*.xml.gz" | lalapps_path2cache > .$@
 	ligolw_bucluster --cluster-algorithm excesspower --program gstlal_excesspower --verbose --input-cache .$@
 	mv .$@ $@
 
-shorten_triggers_clustered.cache:
-	cp -r shorten_triggers/ shorten_triggers_clustered/
-	find shorten_triggers_clustered/ -name "*.xml.gz" | lalapps_path2cache > .$@
+shorten_%_triggers_clustered.cache:
+	mkdir -p shorten_triggers_clustered/
+	cp -r shorten_triggers/$*/ shorten_triggers_clustered/$*/
+	find shorten_triggers_clustered/$*/ -name "*.xml.gz" | lalapps_path2cache > .$@
 	ligolw_bucluster --cluster-algorithm excesspower --program gstlal_excesspower --verbose --input-cache .$@
 	mv .$@ $@
+
+open_triggers_clustered.cache: open_v10_triggers_clustered.cache open_v5_triggers_clustered.cache open_v2p5_triggers_clustered.cache open_v1p25_triggers_clustered.cache 
+	cat $^ > $@
+
+shorten_triggers_clustered.cache: shorten_v10_triggers_clustered.cache shorten_v5_triggers_clustered.cache shorten_v2p5_triggers_clustered.cache shorten_v1p25_triggers_clustered.cache 
+	cat $^ > $@
 
 #
 # Some notes on coincidence:
@@ -405,9 +419,9 @@ shorten_triggers_clustered.cache:
 time_slide_table.xml.gz:
 	ligolw_tisi -i K1=0:5:1 -i K2=0:5:1 -i K3=0:5:1 -i K4=0:0:1 -v time_slide_table.xml.gz 
 
-K-ALL_TRIGGERS_COINC_SHORTEN.xml.gz: time_slide_table.xml.gz shorten_triggers_clustered.cache
+K-ALL_TRIGGERS_COINC_SHORTEN_%.xml.gz: time_slide_table.xml.gz shorten_%_triggers_clustered.cache
 	ligolw_add  \
-	    --input-cache shorten_triggers_clustered.cache \
+	    --input-cache shorten_$*_triggers_clustered.cache \
         --verbose  \
         -o .tmp_coinc.xml.gz  \
         time_slide_table.xml.gz
@@ -419,9 +433,9 @@ K-ALL_TRIGGERS_COINC_SHORTEN.xml.gz: time_slide_table.xml.gz shorten_triggers_cl
         .tmp_coinc.xml.gz
 	mv .tmp_coinc.xml.gz $@
 
-K-ALL_TRIGGERS_COINC_OPEN.xml.gz: time_slide_table.xml.gz open_triggers_clustered.cache
+K-ALL_TRIGGERS_COINC_OPEN_%.xml.gz: time_slide_table.xml.gz open_%_triggers_clustered.cache
 	ligolw_add  \
-	    --input-cache open_triggers_clustered.cache \
+	    --input-cache open_$*_triggers_clustered.cache \
         --verbose  \
         -o .tmp_coinc.xml.gz  \
         time_slide_table.xml.gz
@@ -432,6 +446,20 @@ K-ALL_TRIGGERS_COINC_OPEN.xml.gz: time_slide_table.xml.gz open_triggers_clustere
         --verbose \
         .tmp_coinc.xml.gz
 	mv .tmp_coinc.xml.gz $@
+
+ep_plots: K-ALL_TRIGGERS_COINC_SHORTEN_v1p25.png K-ALL_TRIGGERS_COINC_SHORTEN_v2p5.png K-ALL_TRIGGERS_COINC_SHORTEN_v5.png K-ALL_TRIGGERS_COINC_SHORTEN_v10.png K-ALL_TRIGGERS_COINC_OPEN_v1p25.png K-ALL_TRIGGERS_COINC_OPEN_v2p5.png K-ALL_TRIGGERS_COINC_OPEN_v5.png K-ALL_TRIGGERS_COINC_OPEN_v10.png
+
+K-ALL_TRIGGERS_COINC_SHORTEN_%.png: K-ALL_TRIGGERS_COINC_SHORTEN_%.xml.gz
+	gstlal_excesspower_trigvis --output-file $@ $<
+
+K-ALL_TRIGGERS_COINC_OPEN_%.png: K-ALL_TRIGGERS_COINC_OPEN_%.xml.gz
+	gstlal_excesspower_trigvis --output-file $@ $<
+
+K-ALL_TRIGGERS_COINC_SHORTEN_%.sqlite: K-ALL_TRIGGERS_COINC_SHORTEN_%.xml.gz
+	ligolw_sqlite -t /dev/shm -d $@ -v $<
+
+K-ALL_TRIGGERS_COINC_OPEN_%.sqlite: K-ALL_TRIGGERS_COINC_OPEN_%.xml.gz
+	ligolw_sqlite -t /dev/shm -d $@ -v $<
 
 clean:
 	rm -rf *.cache 

@@ -56,8 +56,6 @@ gps_end_shorten=1000003600
 # inappropriate.
 #
 
-PSDS=K1-K1_MAG_v1p25-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v1p25-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v2p5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v2p5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v5-FULL_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-PART_SHIELD_CHAN1_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN2_REF_PSD.xml.gz K1-K1_MAG_v10-FULL_SHIELD_CHAN1_REF_PSD.xml.gz
-
 #
 # Preliminaries -- unpack the data if provided in tarball form
 #
@@ -71,10 +69,31 @@ open:
 # Power spectra density (PSD) estimations for each channel and plotting them all
 # together
 #
-plot_psds: ${PSDS}
-	./plot_psds_single ${detector} ${PSDS}
+K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
 
-K1-K1_MAG_%-PART_SHIELD_CHAN1_REF_PSD.xml.gz: open_%_frames_resampled.cache
+K1-K1_MAG_%-PART_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-PART_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $<
+
+K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz: shorten_%_frames_resampled.cache
 	gstlal_reference_psd  \
         --data-source frames \
         --frame-cache $< \
@@ -85,7 +104,7 @@ K1-K1_MAG_%-PART_SHIELD_CHAN1_REF_PSD.xml.gz: open_%_frames_resampled.cache
         --write-psd $@ \
         --verbose
 
-K1-K1_MAG_%-PART_SHIELD_CHAN2_REF_PSD.xml.gz: open_%_frames_resampled.cache
+K1-K1_MAG_%-PART_SHIELD_CHAN2_SHORTEN_REF_PSD.xml.gz: shorten_%_frames_resampled.cache
 	gstlal_reference_psd  \
         --data-source frames \
         --frame-cache $< \
@@ -96,7 +115,7 @@ K1-K1_MAG_%-PART_SHIELD_CHAN2_REF_PSD.xml.gz: open_%_frames_resampled.cache
         --write-psd $@ \
         --verbose
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN1_REF_PSD.xml.gz: open_%_frames_resampled.cache
+K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz: shorten_%_frames_resampled.cache
 	gstlal_reference_psd  \
         --data-source frames \
         --frame-cache $< \
@@ -107,7 +126,51 @@ K1-K1_MAG_%-FULL_SHIELD_CHAN1_REF_PSD.xml.gz: open_%_frames_resampled.cache
         --write-psd $@ \
         --verbose
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN2_REF_PSD.xml.gz: open_%_frames_resampled.cache
+K1-K1_MAG_%-FULL_SHIELD_CHAN2_SHORTEN_REF_PSD.xml.gz: shorten_%_frames_resampled.cache
+	gstlal_reference_psd  \
+        --data-source frames \
+        --frame-cache $< \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN2 \
+        --gps-start-time 1000000000 \
+        --gps-end-time 1000005880 \
+        --sample-rate 1024 \
+        --write-psd $@ \
+        --verbose
+
+K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz: open_%_frames_resampled.cache
+	gstlal_reference_psd  \
+        --data-source frames \
+        --frame-cache $< \
+        --channel-name K1=MAG-PART_SHIELD_CHAN1 \
+        --gps-start-time 1000000000 \
+        --gps-end-time 1000005880 \
+        --sample-rate 1024 \
+        --write-psd $@ \
+        --verbose
+
+K1-K1_MAG_%-PART_SHIELD_CHAN2_OPEN_REF_PSD.xml.gz: open_%_frames_resampled.cache
+	gstlal_reference_psd  \
+        --data-source frames \
+        --frame-cache $< \
+        --channel-name K1=MAG-PART_SHIELD_CHAN2 \
+        --gps-start-time 1000000000 \
+        --gps-end-time 1000005880 \
+        --sample-rate 1024 \
+        --write-psd $@ \
+        --verbose
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz: open_%_frames_resampled.cache
+	gstlal_reference_psd  \
+        --data-source frames \
+        --frame-cache $< \
+        --channel-name K1=MAG-FULL_SHIELD_CHAN1 \
+        --gps-start-time 1000000000 \
+        --gps-end-time 1000005880 \
+        --sample-rate 1024 \
+        --write-psd $@ \
+        --verbose
+
+K1-K1_MAG_%-FULL_SHIELD_CHAN2_OPEN_REF_PSD.xml.gz: open_%_frames_resampled.cache
 	gstlal_reference_psd  \
         --data-source frames \
         --frame-cache $< \

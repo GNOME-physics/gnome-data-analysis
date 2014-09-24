@@ -13,7 +13,8 @@ from glue.ligolw import utils
 
 psdd = defaultdict(list)
 ifo = sys.argv[1]
-for arg in sys.argv[2:]:
+out = sys.argv[2]
+for arg in sys.argv[3:]:
     print arg
     psdd[arg] = read_psd_xmldoc(utils.load_filename(arg))[ifo]
 
@@ -28,6 +29,6 @@ for fname, series in psdd.iteritems():
     #pyplot.ylim([1e15,1e18])
 
 pyplot.grid()
-pyplot.legend(loc="lower left")
+pyplot.legend(prop={'size': 6}) #loc="lower left")
 
-pyplot.savefig("psd_single.png")
+pyplot.savefig(out)

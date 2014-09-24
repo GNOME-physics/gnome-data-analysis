@@ -69,29 +69,29 @@ open:
 # Power spectra density (PSD) estimations for each channel and plotting them all
 # together
 #
-K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-PART_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-PART_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-PART_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-FULL_SHIELD_CHAN1_OPEN_REF_PSD.png: K1-K1_MAG_*-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-FULL_SHIELD_CHAN2_OPEN_REF_PSD.png: K1-K1_MAG_*-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_*-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-PART_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-PART_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_*-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.png: K1-K1_MAG_*-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
-K1-K1_MAG_%-FULL_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_%-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
-	./plot_psds_single ${detector} $<
+K1-K1_MAG-FULL_SHIELD_CHAN2_SHORTEN_REF_PSD.png: K1-K1_MAG_*-FULL_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz
+	./plot_psds_single ${detector} $@ $^
 
 K1-K1_MAG_%-PART_SHIELD_CHAN1_SHORTEN_REF_PSD.xml.gz: shorten_%_frames_resampled.cache
 	gstlal_reference_psd  \

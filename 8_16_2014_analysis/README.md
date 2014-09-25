@@ -83,8 +83,7 @@ Each plot has each of the four channels plotted.
 
 ## Power Spectral Densities
 
-# FIXME: This formatting
-See `make K1-K1\_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz` and others for examples.
+See `make K1-K1_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz` and others for examples.
 
 The power spectral density is measured by the [gstlal_reference_psd](https://ligo-vcs.phys.uwm.edu/cgit/gstlal/tree/gstlal/bin/gstlal_reference_psd) program. It uses a mean-median estimator. They are saved in an XML format so that they can be digested easier by downstream programs. If a text file is needed try:
 
@@ -94,13 +93,13 @@ ligolw_print -a K1 K1-K1_MAG_v10-FULL_SHIELD_CHAN1_OPEN_REF_PSD.xml.gz -d " "
 
 NOTE: the ligolw_print program is installed as part of glue.
 
-There are plots of each of the data sets (`make K1-K1\_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.png` and friends), with each of the four voltages for one channel plotted in one figure. They are named K1-K1_MAG-{FULL,PART}_CHAN{1,2}_{OPEN,SHORTEN}_REF_PSD.png.
+There are plots of each of the data sets (`make K1-K1_MAG_*-PART_SHIELD_CHAN1_OPEN_REF_PSD.png` and friends), with each of the four voltages for one channel plotted in one figure. They are named K1-K1_MAG-{FULL,PART}_CHAN{1,2}_{OPEN,SHORTEN}_REF_PSD.png.
 
 Most sets have some fairly sharp power line resonances (mostly taken care of by the PSD estimation). Two which don't are FULL_SHIELD_CHAN{1,2} in the shorten set, though a little disruption can be seen at harmonics (100 Hz?).
 
 ## Time-frequency Analysis and Trigger Generation
 
-The `gstlal\_excesspower` program is used to generate time-frequency maps and trigger sets from the analysis channel. Each channel is analyzed independently (see MAG_%_PART_SHIELD_CHAN2_open and friends Makefile rules). An invocation of `gstlal\_excesspower` looks something like this:
+The `gstlal_excesspower` program is used to generate time-frequency maps and trigger sets from the analysis channel. Each channel is analyzed independently (see MAG_%_PART_SHIELD_CHAN2_open and friends Makefile rules). An invocation of `gstlal_excesspower` looks something like this:
 
 ```bash
     gstlal_excesspower  \
@@ -178,7 +177,7 @@ I tried a number of configurations for the coincidence, including a test with sl
 
 The combinatorics are not always easy to visualize, I suggest drawing a picture. So this is a four instrument "network" where 'background' corresponds to any set of offsets where `|\delta t| > 0`, and "foreground" is the unique set where all offsets are zero (no sliding is done).
 
-The coincidence algorthm used is `ligolw\_burca`, see the Makefile for details. I've run the result through a program designed to visualize the output. The plots here can be very hard to interpret, so I'll try my best to outline their functionality (if any). Each dataset/gain voltage has its own coincidence analysis (Makefile targets not yet added). You'll notice that they use a sqlite database. This is a design decision for efficiency in plotting and result archival.
+The coincidence algorthm used is `ligolw_burca`, see the Makefile for details. I've run the result through a program designed to visualize the output. The plots here can be very hard to interpret, so I'll try my best to outline their functionality (if any). Each dataset/gain voltage has its own coincidence analysis (Makefile targets not yet added). You'll notice that they use a sqlite database. This is a design decision for efficiency in plotting and result archival.
 
 Each set has plot number (the last number in gnome_{set}_{voltage}_##.png). They are as follows:
 

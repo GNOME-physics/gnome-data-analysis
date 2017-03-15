@@ -1,0 +1,158 @@
+#!/usr/bin/env python
+import math
+import glob
+
+import numpy
+import h5py
+
+from glue.segments import segment, segmentlist, segmentlistdict
+
+from gwpy.timeseries import TimeSeries, TimeSeriesList
+from gwpy.segments import SegmentList
+from gwpy.plotter import TimeSeriesPlot, SpectrogramPlot, SpectrumPlot
+
+from astropy.units import Quantity
+
+import gnome_da
+
+import matplotlib
+matplotlib.rcParams['axes.unicode_minus'] = False
+
+station_map = {
+    "berkeley": 'r',
+    "mainz": 'b',
+    "fribourg": 'g',
+    "hayward": 'c',
+    "krakow": 'k'
+}
+
+all_plot = TimeSeriesPlot()
+full_seglist = segmentlist([])
+
+for station, color in station_map.iteritems():
+    data_order = {}
+    #print station, len(glob.glob("/GNOMEDrive/gnome/serverdata/%s01/2016/03/23/%s01_20160323_*.hdf5" % (station, station)))
+
+    #
+    # Figure out the order of the data files to fill in the time series
+    #
+    for fname in glob.glob("/GNOMEDrive/gnome/serverdata/%s01/2016/03/23/%s01_20160323_*.hdf5" % (station, station)):
+        hfile = h5py.File(fname, "r")
+        data_order[gnome_da._file_to_segment(hfile)] = hfile
+
+    #
+    # Generate an ASCII representation of the GPS timestamped segments of time
+    # covered by the input data
+    #
+    seglist = segmentlist(data_order.keys())
+    seglist.sort()
+    with open("%s_segments.txt" % station, "w") as fout:
+        for seg in seglist:
+            print >>fout, "%10.9f %10.9f" % seg
+
+    # This is just to get metadata
+    setname = "MagneticFields"
+    full_data = TimeSeriesList()
+    for seg in seglist:
+        full_data.append(gnome_da.retrieve_data_timeseries(data_order[seg], "MagneticFields"))
+        data_order[seg].close()
+    del data_order
+
+    seglist.coalesce()
+    print seglist
+    try:
+        start, end = int(seglist[0][0]), int(numpy.ceil(seglist[-1][1]))
+    except:
+        print "Unable to process data of station " + station + "... skipping."
+        continue
+
+    #
+    # Generate a plot of the data time series
+    #
+    plot = TimeSeriesPlot()
+    ax = plot.gca()
+    for ts in full_data:
+        ax.plot(ts, color=color)
+    ax.set_title(station)
+    plot.add_state_segments(SegmentList(seglist), plotargs={'label': 'data present', 'facecolor': 'g', 'edgecolor': 'k'})
+    ax.set_xlim(seglist[0][0], seglist[-1][1])
+    plot.savefig("%s_time_series_%d_%d.png" % (station, start, end))
+    plot.close()
+
+    # AGG complexity starts to complain with large numbers of points
+    for d in full_data:
+        d.x0 = Quantity(int(d.x0.value * 1000), d.xunit)
+        d.dx = Quantity(1, d.xunit)
+    full_data.coalesce()
+    for d in full_data:
+        d.x0 = Quantity(d.x0.value / 1000, d.xunit)
+        d.dx = Quantity(0.001, d.xunit)
+
+    #
+    # Generate an amplitude spectrum density plot
+    #
+    plot = SpectrumPlot()
+    for d in full_data:
+        spectrum = d.asd(8, 4)
+        ax = plot.gca()
+        ax.plot(spectrum)
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    ax.set_xlim(1e-1, 500)
+    plot.savefig("%s_spectrum_%d_%d.png" % (station, start, end))
+
+    #
+    # Generate a spectorgram plot, and a normalized spectrogram plot
+    # norm: \sqrt{S(f,t)} / \sqrt{\overbar{S(f)}}
+    #
+    plot = SpectrogramPlot()
+    white_plot = SpectrogramPlot()
+    ax = plot.gca()
+    wax = white_plot.gca()
+    for ts in full_data:
+        print ts.x0
+        if (len(ts) * ts.dt).value < 60:
+            continue
+        spec = ts.spectrogram(60, fftlength=6, overlap=3)
+        ax.plot(spec)
+        numpy.savetxt("%s_%d_spec_data.txt.gz" %(station, ts.x0.value), spec.data)
+        wspec = spec.ratio('median')
+        numpy.savetxt("%s_%d_wspec_data.txt.gz" %(station, ts.x0.value), wspec.data)
+        wax.plot(wspec, vmin=0.1, vmax=10)
+    ax.set_title(station)
+    ax.set_ylim(1e-1, 500)
+    ax.set_yscale('log')
+    wax.set_title(station)
+    wax.set_ylim(1e-1, 500)
+    wax.set_yscale('log')
+    plot.add_colorbar(log=True)
+    plot.add_state_segments(SegmentList(seglist), plotargs={'label': 'data present', 'facecolor': 'g', 'edgecolor': 'k'})
+    ax.set_xlim(seglist[0][0], seglist[-1][1])
+    wax.set_xlim(seglist[0][0], seglist[-1][1])
+    plot.savefig("%s_spectrogram_%d_%d.png" % (station, start, end))
+    plot.close()
+
+    white_plot.add_colorbar(log=True)
+    white_plot.add_state_segments(SegmentList(seglist), plotargs={'label': 'data present', 'facecolor': 'g', 'edgecolor': 'k'})
+    white_plot.savefig("%s_whitened_spectrogram_%d_%d.png" % (station, start, end))
+    white_plot.close()
+
+    ax = all_plot.gca()
+    for ts in full_data:
+        ax.plot(ts, color=color)
+
+    full_seglist.extend(seglist)
+    full_seglist.coalesce()
+
+    # TODO: Check coherence with other channels
+
+exit()
+
+#
+# Generate a plot of all the station's time series
+#
+ax = all_plot.gca()
+ax.set_xlim(full_seglist[0][0], full_seglist[-1][1])
+ax.set_titile("all stations")
+all_plot.savefig("time_series.png")
+all_plot.close()

@@ -11,21 +11,19 @@ all stations run from March 23rd, 2016.
 
 The program is working with the following packages:
 
-============ ==========
-Package      Version
-============ ==========
-python       2.7.13
-numpy        1.12.1
-scipy        0.18.0
-glue         1.54.1
-lal          6.18.0
-lalburst     1.4.4
-pycbc        1.6.8
-h5py         2.6.0
-gwpy         0.4
-astropy      1.3.2
-matplotlib   2.0.0
-============ ==========
+| Package      | Version | 
+| ------------ | ------- |
+| python       | 2.7.13  |
+| numpy        | 1.12.1  |
+| scipy        | 0.18.0  |
+| glue         | 1.54.1  |
+| lal          | 6.18.0  |
+| lalburst     | 1.4.4   |
+| pycbc        | 1.6.8   |
+| h5py         | 2.6.0   |
+| gwpy         | 0.4     |
+| astropy      | 1.3.2   |
+| matplotlib   | 2.0.0   |
 
 We note that the Scipy v0.19.0 released in early March 2017 is not compatible
 with the some of the LIGO modules used when the scripts were written. In
@@ -56,3 +54,4 @@ The above command along with all the option is already included in the shell scr
 `example_run.sh` as followws:
 
 	sh example_run.sh
+	

@@ -383,7 +383,7 @@ def _file_to_segment(hfile, segname="MagneticFields"):
 #fname = "data/GNOMEDrive/gnome/serverdata/berkeley01/2016/03/23/berkeley01_20160323_000008.hdf5"
 import glob
 data_order = {}
-for fname in glob.glob("data/GNOMEDrive/gnome/serverdata/fribourg01/2016/03/23/fribourg01_20160323_*.hdf5"):
+for fname in glob.glob("/Users/vincent/ASTRO/data/GNOMEDrive/gnome/serverdata/fribourg01/2016/03/23/fribourg01_20160323_*.hdf5"):
     hfile = h5py.File(fname, "r")
     data_order[_file_to_segment(hfile)] = hfile
 

@@ -36,7 +36,7 @@ for station, color in station_map.iteritems():
     #
     # Figure out the order of the data files to fill in the time series
     #
-    for fname in glob.glob("/GNOMEDrive/gnome/serverdata/%s01/2016/03/23/%s01_20160323_*.hdf5" % (station, station)):
+    for fname in glob.glob("/Users/vincent/ASTRO/data/GNOMEDrive/gnome/serverdata/%s01/2016/03/23/%s01_20160323_*.hdf5" % (station, station)):
         hfile = h5py.File(fname, "r")
         data_order[gnome_da._file_to_segment(hfile)] = hfile
 

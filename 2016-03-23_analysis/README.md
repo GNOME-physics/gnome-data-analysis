@@ -9,26 +9,47 @@ all stations run from March 23rd, 2016.
 
 ### Prerequisites
 
-The program is working with the following packages:
+Almost all the modules were installed through the Python package manager pip,
+with the exceptions of the lal and lalburst packages which were installed via
+Macports. The scripts present in this repository work properly with the version
+of each package:
 
 - `python 2.7.13`
 - `numpy 1.12.1`
 - `scipy 0.18.0`
-- `glue 1.54.1`
+- `pycbc-glue 1.0.1`
 - `lal 6.18.0`
 - `lalburst 1.4.4`
 - `pycbc 1.6.8`
 - `h5py 2.6.0`
-- `gwpy 0.4`
+- `gwpy 0.1`
 - `astropy 1.3.2`
 - `matplotlib 2.0.0`
+
+### Module issues
+
+#### scipy.weave
 
 We note that the Scipy v0.19.0 released in early March 2017 is not compatible
 with the some of the LIGO modules used when the scripts were written. In
 particular, the now deprecated scipy.weave library has been removed. This
 library is used by the pycbc package.
 
-### Running the program
+#### gwpy.plotter.SpectrumPlot
+
+Version newer than 0.1 of the `gwpy` package do not have the `SpectrumPlot`
+package required to run properly the `plot_spectrogram` script. If one
+wants to run the analysis scripts here, one needs to use gwpy-0.1.
+
+#### glue.ligolw.table.CompareTableNames
+
+If you installed the `glue` package via Macports, that version will not work
+with the scripts here as the `CompareTableNames` module does not exist on this
+version. You will therefore be prompt an ImportError message telling you that
+the module cannot be imported. Instead, install the `pycbc-glue` package from
+pip.
+
+## Getting running
 
 The `pyburst_excesspower_gnome` script can be run along with specific arguments
 to specific the characteristics of the tiles we want to study. For instance,
